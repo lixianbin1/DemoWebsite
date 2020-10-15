@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf-8>
+        <title>My first Three.js app</title>
+        <style>
+            *{margin:0;border:0;}
+            canvas { width: 100%; height: 100%;vertical-align:bottom}
+        </style>
+
+    </head>
+    <body>
+        <script src="./three.min.js"></script>
+        <script src="./OBJLoader.js"></script>
+        <script src="./DDSLoader.js"></script>
+        <script src="./MTLLoader.js"></script>
+        <script src="./OrbitControls2.js"></script>
+
+        <script>
+            //创建一个场景
+            var scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0xa0a0a0 );
+            scene.fog = new THREE.Fog( 0xa0a0a0, 80, 120 );
+
+
+            //创建一个摄像机 属性:(视野,宽高比,近剪裁平面和远剪裁平面)
+            var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+            var lengthX=0,lengthZ=10,lengthY=40,earsMax=40,earsMin=15
+            camera.position.set( lengthX,lengthY, lengthZ );
+            camera.lookAt( 0, 0, 0 );
+            
+
+            //创建渲染器实例 设置我们希望它渲染应用程序的大小，浏览器窗口的宽度和高度
+            var renderer = new THREE.WebGLRenderer({
+                antialias:true,
+                alpha:true
+            });
+            renderer.shadowMapEnabled = true;//开启阴影
+            renderer.setClearColor(0x000000);//设置场景颜色
+
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+
+            //辅助对象 三维箭头 红x 绿y 蓝z 
+            var axesHelper = new THREE.AxesHelper( 80 );
+            scene.add( axesHelper );
+
+            //地图系统
+            var maps=[]
+            map(0,0)
+            function map(x,y){
+              for(let i=-2;i<=2;i++){
+                  for(let k=-2;k<=2;k++){
+                      let has=true
+                      let xy=(i+x)+','+(k+y)
+                      for(let j in maps){
+                          if(maps[j]==xy){
+                              has=false
+                              break
+                          }
+                      }
+                      if(has){
+                          maps.push(xy)
+                          iniPlane(80*(i+x),0,80*(k+y))
+                      }
+                  }
+              }
+            }
+
+
+// var raycaster = new THREE.Raycaster();
+// var mouse = new THREE.Vector2();
+// function onMouseClick( event ) {
+//   // 将鼠标位置归一化为设备坐标。x 和 y 方向的取值范围是 (-1 to +1)
+//   mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+//   mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+//   render()
+// }
+// function render() {
+//   //通过摄像机和鼠标位置更新射线
+//   raycaster.setFromCamera( mouse, camera );
+//   // 计算物体和射线的焦点
+//   var intersects = raycaster.intersectObjects( scene.children );
+//   for ( var i = 0; i < intersects.length; i++ ) {
+//     intersects[ i ].object.material.color.set( 0xffff00 );
+//   }
+//   renderer.render( scene, camera );
+// }
+// window.addEventListener( 'click', onMouseClick, false );
+
+
+
+
+//光源辅助
+
+//平行光
+var light = new THREE.DirectionalLight( 0xffffff, 0.8 );
+var lightC=40
+    light.position.set( 20, 40, 20 );
+    light.castShadow = true; //允许产生阴影
+    light.shadow.camera.left = - lightC;
+    light.shadow.camera.right = lightC;
+    light.shadow.camera.top = lightC;
+    light.shadow.camera.bottom = - lightC;
+    light.shadow.camera.near = 10;
+    light.shadow.camera.far = 180;
+    light.shadow.bias = - 0.001;
+    light.shadow.mapSize.width = 1512;
+    light.shadow.mapSize.height = 1512;
+    scene.add( light );
+//阴影助手
+var helper = new THREE.CameraHelper( light.shadow.camera );
+    scene.add( helper );
+
+
+renderer.render( scene, camera );//渲染
+
+
+var texture = new THREE.TextureLoader().load( "./a1.png" );
+texture.wrapS = THREE.RepeatWrapping;
+texture.wrapT = THREE.RepeatWrapping;
+texture.repeat.set( 4, 4 );
+
+              //导入模型
+              var mtlLoader = new THREE.MTLLoader()
+              var objLoader=new THREE.OBJLoader()
+                mtlLoader.setPath('obj/')
+                mtlLoader.load('room1.mtl',function(materials){
+                  materials.preload();
+                  objLoader.setMaterials(materials)
+                  objLoader.setPath('obj/')
+                  objLoader.load('room1.obj',function(object){
+                    object.traverse(function(child) {
+                      if(child instanceof THREE.Mesh) {
+                        child.material.transparent=true;
+                        child.receiveShadow = true;//接收阴影
+                        child.castShadow = true;
+                        child.material.map = texture;
+                      }
+                    })
+                    object.position.set(0,-6,0)
+                    object.transparent=true;
+                    object.opacity=0.5
+                    scene.add(object);
+                    renderer.render(scene,camera);
+                  },undefined,function(error){
+                    console.log(error)
+                  });
+                });
+
+
+
+            //网格
+            function iniPlane(x,y,z) {
+                //地板
+                var planeGeo = new THREE.PlaneGeometry(80, 80);
+                var planeMat = new THREE.MeshLambertMaterial({color:0xf1f1f1,side:THREE.DoubleSide});
+                var plane = new THREE.Mesh(planeGeo,planeMat);
+                plane.receiveShadow = true;//接收阴影
+                plane.castShadow = true;
+                plane.position.set(x,y,z)
+                plane.position.y = -0.01;//下沉0.01
+                plane.rotation.x = 0.5 * Math.PI;//翻转90度
+                
+                //网格的对象 
+                var grid = new THREE.GridHelper(80, 40, 0x000000, 0x000000);
+                grid.material.transparent = true;//允许透明
+                grid.material.opacity = 0.3;
+                grid.position.set(x,y,z)
+
+                scene.add(plane);
+                scene.add(grid);
+            }
+
+//轨道控制相机
+var controls = new THREE.OrbitControls( camera );
+    camera.position.set( 0, 20, 10 );
+    controls.enableDamping = true
+    controls.dampingFactor=0.15
+    controls.minPolarAngle= Math.PI/8;
+    controls.maxPolarAngle= Math.PI/3;
+    controls.panSpeed=0.1
+    controls.rotateSpeed=0.05
+    controls.maxZoom=10
+    controls.minDistance=50
+    controls.maxDistance=80
+    controls.update();
+    (function animate() {
+      requestAnimationFrame( animate );
+      var target=controls.target
+      let tarX,tarY
+      if(Math.abs(target.x-0)>40){
+        if(target.x>0){
+          tarX=Math.ceil((target.x-40)/80)
+        }else{
+          tarX=Math.floor((target.x+40)/80)
+        }
+      }else{
+        tarX=0
+      }
+      if(Math.abs(target.z-0)>40){
+        if(target.z>0){
+          tarY=Math.ceil((target.z-40)/80)
+        }else{
+          tarY=Math.floor((target.z+40)/80)
+        }
+      }else{
+        tarY=0
+      }
+      map(tarX,tarY)
+      controls.update();
+      renderer.render( scene, camera );
+    })()
+
+
+        </script>
+    </body>
+</html>

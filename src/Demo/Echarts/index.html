@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="./static/js/echarts.min.js"></script>
+    <script src="./static/js/china.js"></script>
+    <link rel="stylesheet" type="text/css" href="./index.css"></link>
+</head>
+<body>
+    <div id="app">
+        <content-left></content-left>
+        
+        <content-right></content-right>
+    </div>
+    <script src="./index.js"></script>
+    <script>
+    Vue.component('content-left',{
+        template:`<div id="left">
+           <div class="section">
+             <two-pic></two-pic>
+             <top-line></top-line>
+           </div>
+           <recharge></recharge>
+           <div class="secsrate">
+             <rate-line></rate-line>
+           </div>
+        </div>`
+    })
+    Vue.component('rate-top3',{
+        template:`<div class="successTop">
+            <div>
+              <p class="toplist">
+                <span>1</span>
+                <span>北京</span>
+                <a><span></span></a>
+                <span>59%</span>
+              </p>
+              <p class="toplist">
+                <span>2</span>
+                <span>广东</span>
+                <a><span></span></a>
+                <span>59%</span>
+              </p>
+              <p class="toplist">
+                <span>3</span>
+                <span>福建</span>
+                <a><span></span></a>
+                <span>59%</span>
+              </p>
+            </div>
+        </div>`
+    })
+    Vue.component('volume-top3',{
+        template:`<div class="successTop volume">
+            <div>
+              <p class="toplist">
+                <span>1</span>
+                <span>北京</span>
+                <a><span></span></a>
+                <span>121,234</span>
+              </p>
+              <p class="toplist">
+                <span>2</span>
+                <span>广东</span>
+                <a><span></span></a>
+                <span>2,124</span>
+              </p>
+              <p class="toplist">
+                <span>3</span>
+                <span>福建</span>
+                <a><span></span></a>
+                <span>1,324</span>
+              </p>
+            </div>
+        </div>`
+    })
+    Vue.component('content-right',{
+        template:`<div id="right">
+            <div class="cmap">
+                <china-map></china-map>
+                <div class="top3box">
+                  <rate-top3></rate-top3>
+                  <volume-top3></volume-top3>
+                </div>
+            </div>
+            <div class="report">
+                <report-pie></report-pie>
+                <div class="reportList">
+                  <ul>
+                    <li><p>今日未解决告警数<span>32</span></p></li>
+                    <li><p>今日告警业务笔数<span>61</span></p></li>
+                    <li><p>今日已解决告警数<span>29</span></p></li>
+                    <li><p>今日业务量<span>194,941</span></p></li>
+                  </ul>
+                </div>
+            </div>
+        </div>`
+    })
+    var app = new Vue({
+        el: '#app',
+        data: {
+          message: 'Hello Vue!'
+        }
+    })
+    </script>
+</body>
+</html>
