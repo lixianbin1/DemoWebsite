@@ -14,7 +14,7 @@ export const list=[{
     title:'Lacking',
     text:'React 组件例子'
 },{
-    href:'./Demo/BigScreen/index.html',
+    href:'./Demo/Echarts/index.html',
     img:require('../Static/img/article/1906111.jpg'),
     title:'Echart图例展示',
     text:'Echarts的分辨率兼容（去除了敏感性东西，可能显的空）'
