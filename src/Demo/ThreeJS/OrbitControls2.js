@@ -6,12 +6,10 @@
  * @author erich666 / http://erichaines.com
  */
 
-// This set of controls performs orbiting, dollying (zooming), and panning.
-// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
-//
-//    Orbit - left mouse / touch: one-finger move
-//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
-//    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
+//这个控件执行动态观察、推拉（缩放）和平移。
+//环绕-鼠标左键/触摸：移动一个手指
+//缩放-鼠标中键或鼠标滚轮/触摸：两个手指展开或挤压
+//平移-鼠标右键，或鼠标左键+ctrl/meta/shiftKey，或箭头键/触摸键：两个手指移动
 
 THREE.OrbitControls = function ( object, domElement ) {
 
@@ -19,22 +17,22 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 
-	// Set to false to disable this control
+	// 设置为false以禁用此控件
 	this.enabled = true;
 
-	// "target" sets the location of focus, where the object orbits around
+	// "target"设置焦点的位置，即物体围绕的位置
 	this.target = new THREE.Vector3();
 
-	// How far you can dolly in and out ( PerspectiveCamera only )
+	// 您可以推拉进出多远（仅限透视摄像头）
 	this.minDistance = 0;
 	this.maxDistance = Infinity;
 
-	// How far you can zoom in and out ( OrthographicCamera only )
+	// 可以放大和缩小的距离（仅限正交摄影机）
 	this.minZoom = 0;
 	this.maxZoom = Infinity;
 
-	// How far you can orbit vertically, upper and lower limits.
-	// Range is 0 to Math.PI radians.
+	//垂直轨道的距离，上限和下限。
+	//范围是0到Math.PI弧度。
 	this.minPolarAngle = 0; // radians
 	this.maxPolarAngle = Math.PI; // radians
 
@@ -83,45 +81,30 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.zoom0 = this.object.zoom;
 
 	//
-	// public methods
+	// 公共方法
 	//
-
 	this.getPolarAngle = function () {
-
 		return spherical.phi;
-
 	};
-
 	this.getAzimuthalAngle = function () {
-
 		return spherical.theta;
-
 	};
-
 	this.saveState = function () {
-
 		scope.target0.copy( scope.target );
 		scope.position0.copy( scope.object.position );
 		scope.zoom0 = scope.object.zoom;
-
 	};
-
 	this.reset = function () {
-
 		scope.target.copy( scope.target0 );
 		scope.object.position.copy( scope.position0 );
 		scope.object.zoom = scope.zoom0;
-
 		scope.object.updateProjectionMatrix();
 		scope.dispatchEvent( changeEvent );
-
 		scope.update();
-
 		state = STATE.NONE;
-
 	};
 
-	// this method is exposed, but perhaps it would be better if we can make it private...
+	//这个方法是公开的，但是如果我们能将它私有化，也许会更好。。。
 	this.update = function () {
 
 		var offset = new THREE.Vector3();
@@ -222,22 +205,16 @@ THREE.OrbitControls = function ( object, domElement ) {
 	}();
 
 	this.dispose = function () {
-
 		scope.domElement.removeEventListener( 'contextmenu', onContextMenu, false );
 		scope.domElement.removeEventListener( 'mousedown', onMouseDown, false );
 		scope.domElement.removeEventListener( 'wheel', onMouseWheel, false );
-
 		scope.domElement.removeEventListener( 'touchstart', onTouchStart, false );
 		scope.domElement.removeEventListener( 'touchend', onTouchEnd, false );
 		scope.domElement.removeEventListener( 'touchmove', onTouchMove, false );
-
 		document.removeEventListener( 'mousemove', onMouseMove, false );
 		document.removeEventListener( 'mouseup', onMouseUp, false );
-
 		window.removeEventListener( 'keydown', onKeyDown, false );
-
 		//scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
-
 	};
 
 	//
@@ -666,8 +643,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 				break;
 		}
 		if ( state !== STATE.NONE ) {
-			document.addEventListener( 'mousemove', onMouseMove, false );
-			document.addEventListener( 'mouseup', onMouseUp, false );
+			document.addEventListener( 'mousemove', onMouseMove, {passive:false} );
+			document.addEventListener( 'mouseup', onMouseUp, {passive:false} );
 			scope.dispatchEvent( startEvent );
 		}
 	}
@@ -692,8 +669,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 	function onMouseUp( event ) {
 		if ( scope.enabled === false ) return;
 		handleMouseUp( event );
-		document.removeEventListener( 'mousemove', onMouseMove, false );
-		document.removeEventListener( 'mouseup', onMouseUp, false );
+		document.removeEventListener( 'mousemove', onMouseMove, {passive:false});
+		document.removeEventListener( 'mouseup', onMouseUp, {passive:false} );
 		scope.dispatchEvent( endEvent );
 		state = STATE.NONE;
 	}
@@ -820,16 +797,16 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	//
 
-	scope.domElement.addEventListener( 'contextmenu', onContextMenu, false );
+	scope.domElement.addEventListener( 'contextmenu', onContextMenu, {passive:false} );
 
-	scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
-	scope.domElement.addEventListener( 'wheel', onMouseWheel, false );
+	scope.domElement.addEventListener( 'mousedown', onMouseDown, {passive:false} );
+	scope.domElement.addEventListener( 'wheel', onMouseWheel, {passive:false} );
 
-	scope.domElement.addEventListener( 'touchstart', onTouchStart, false );
-	scope.domElement.addEventListener( 'touchend', onTouchEnd, false );
-	scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
+	scope.domElement.addEventListener( 'touchstart', onTouchStart, {passive:false} );
+	scope.domElement.addEventListener( 'touchend', onTouchEnd, {passive:false} );
+	scope.domElement.addEventListener( 'touchmove', onTouchMove, {passive:false} );
 
-	window.addEventListener( 'keydown', onKeyDown, false );
+	window.addEventListener( 'keydown', onKeyDown, {passive:false} );
 
 	// force an update at start
 

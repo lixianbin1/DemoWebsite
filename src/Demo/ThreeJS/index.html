@@ -14,6 +14,8 @@
         <script src="./OBJLoader.js"></script>
         <script src="./DDSLoader.js"></script>
         <script src="./MTLLoader.js"></script>
+
+        <!-- 滚轮及控制 -->
         <script src="./OrbitControls2.js"></script>
 
         <script>
@@ -161,7 +163,7 @@ texture.repeat.set( 4, 4 );
                 plane.position.set(x,y,z)
                 plane.position.y = -0.01;//下沉0.01
                 plane.rotation.x = 0.5 * Math.PI;//翻转90度
-                
+
                 //网格的对象 
                 var grid = new THREE.GridHelper(80, 40, 0x000000, 0x000000);
                 grid.material.transparent = true;//允许透明
